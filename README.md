@@ -10,9 +10,7 @@ The two datasets used for this project are publicly accessible, and their offici
 
 [twitter](http://www.multimediaeval.org/mediaeval2016/verifyingmultimediause/index.html)
 
-In this project, the files in `/data/weibo/processed/crops/` used can be downloaded via [Google Drive](https://drive.google.com/file/d/1Yv_y-Q7uvu7VZwcAggua8xE8kdXubLpm/view?usp=sharing).
-
-Due to upload size limitations, please contact the author to obtain certain data!
+In this project, due to upload size limitations for some data, the files in `/data/weibo/processed/crops/` used can be downloaded via [Google Drive](https://drive.google.com/file/d/1Yv_y-Q7uvu7VZwcAggua8xE8kdXubLpm/view?usp=sharing).
 
 # Requirements
 
