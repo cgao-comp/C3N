@@ -4,9 +4,9 @@ The code related to the paper below: C3N: A Cross-modal Content Consistency Netw
 
 ## **Data**
 
-The two datasets used for this project are publicly accessible, and their official links are provided below.
+The two datasets used for this project are publicly accessible, and their links are provided below.
 
-[weibo](https://forms.gle/Hqzcv8DCy15JbeZW6)
+[weibo](https://github.com/yaqingwang/EANN-KDD18)
 
 [twitter](http://www.multimediaeval.org/mediaeval2016/verifyingmultimediause/index.html)
 
