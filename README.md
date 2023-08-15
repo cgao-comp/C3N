@@ -10,7 +10,7 @@ The two datasets used for this project are publicly accessible, and their links 
 
 [twitter](http://www.multimediaeval.org/mediaeval2016/verifyingmultimediause/index.html)
 
-In this project, due to upload size limitations for some data, the files in `/data/weibo/processed/crops/` used can be downloaded via [Google Drive](https://drive.google.com/file/d/1Yv_y-Q7uvu7VZwcAggua8xE8kdXubLpm/view?usp=sharing).
+In this project, due to upload size limitations for some data, the files in `/data/weibo/processed/crops/` used can be downloaded via [Google Drive](https://drive.google.com/file/d/1HyXQhoeHKEe_MILui--mra9fKA449c2S/view?usp=sharing).
 
 # Requirements
 
@@ -35,9 +35,9 @@ transformers==4.25.1
 
 # Run
 
-After installing the environment, in the code directory, modify the save paths in `main.py`, `process_image_weibo.py`, and `process_text_weibo.py`. 
+After installing the environment, in the code directory, modify the save paths in `main.py`, `process_image_weibo.py`, and `process_text_weibo.py`.
 
-First, execute `process_text_weibo.py` to obtain the complete text preprocessing results. 
+First, execute `process_text_weibo.py` to obtain the complete text preprocessing results.
 
 Next, run `process_image_weibo.py` to obtain the image preprocessing results.
 
