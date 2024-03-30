@@ -1,14 +1,18 @@
 import os
 import pickle
-import re
 import pandas as pd
 import numpy as np
+import torch
+import re
 from PIL import Image
 import cn_clip.clip as clip
+from transformers import BertTokenizer, BertModel
+from tqdm import tqdm
 
-data_dir = "../data/weibo/row"
-processed_dir = "../data/weibo/processed"
-big_processed_dir = "It is recommended to use a special directory to store large files."
+data_dir = "/sda/qiaojiao/code/Weibo16/row"
+processed_dir = "/sda/qiaojiao/code/Weibo16/processed"
+big_processed_dir = "/sda/qiaojiao/code/Weibo16/processed"
+
 CLIP_MODEL_NAME = "ViT-B-16"
 
 
@@ -18,12 +22,9 @@ def read_image():
     image_list = {}
     file_list = [data_dir + '/nonrumor_images/', data_dir + '/rumor_images/']
     for path in file_list:
-        for i, filename in enumerate(os.listdir(path)):
+        for i, filename in enumerate(os.listdir(path)):  # assuming gif
             try:
                 im = Image.open(path + filename).convert('RGB')
-                if re.findall('\.gif', filename):
-                    print(filename)
-                    continue
                 image_list[filename.split('/')[-1].split(".")[0]] = True
             except:
                 print(filename)
@@ -31,17 +32,15 @@ def read_image():
     return image_list
 
 
-def clean_str_sst(text, sentences=True):
+def clean_str_sst(text):
     """
     Tokenization/string cleaning for the SST dataset
     """
     text = re.sub(r'(@.*?)[\s]', ' ', text)
     text = re.sub(r'&amp;', '&', text)
     text = re.sub(r'&nbsp;', '', text)
+    text = re.sub(r'&quot', '', text)
     text = re.sub(r'\s+', ' ', text).strip()
-    if sentences:
-        text = re.sub(r'【', '', text)
-        text = text.strip('。+||！|\!|……|？|\?|】')
     return text
 
 
@@ -82,14 +81,6 @@ def load_data():
     np.save(processed_dir + "/row_data_df.npy", data_text_df)
     print("row_data_df length:" + str(data_text_df.shape[0]))
     return data_text_df
-
-
-def text_preprocess(sentence):
-    """ preprocess to return tokens for batch samples
-        input: a list of 15 sub-sentences
-    """
-    clip_inputs = clip.tokenize(sentence)
-    return clip_inputs
 
 
 def paired(image, post):
@@ -134,23 +125,21 @@ def paired(image, post):
     return data_df
 
 
-def split_process_data(df_data, process):
-    """ spli data according benchmark
+def split_EANN_simple(df_data):
+    """ split data according EANN
         df_data: paired() output
     """
-    id_test = pickle.load(open(data_dir + "/test_id.pickle", 'rb'))
-    id_train = pickle.load(open(data_dir + "/train_id.pickle", 'rb'))
-    id_valid = pickle.load(open(data_dir + "/validate_id.pickle", 'rb'))
+    id_test = pickle.load(open("/home/qiaojiao/Code/Datasets/Weibo16_Full/test_id.pickle", 'rb'))
+    id_train = pickle.load(open("/home/qiaojiao/Code/Datasets/Weibo16_Full/train_id.pickle", 'rb'))
+    id_valid = pickle.load(open("/home/qiaojiao/Code/Datasets/Weibo16_Full/validate_id.pickle", 'rb'))
     test = pd.DataFrame(None, columns=df_data.columns)
     train = pd.DataFrame(None, columns=df_data.columns)
     valid = pd.DataFrame(None, columns=df_data.columns)
     device = "cuda:1"
-    model, _ = clip.load_from_name("ViT-B-16", device=device, download_root='./')
+    model, _ = clip.load_from_name("ViT-B-16", device=device, download_root='/home/qiaojiao/Code/')
     for param in model.parameters():
         param.requires_grad = False
     model.eval()
-
-    word_inputs_dic = {}
 
     for i, row in df_data.iterrows():
         print(i, '/', len(df_data))
@@ -162,40 +151,75 @@ def split_process_data(df_data, process):
             train = pd.concat([train, new], axis=0, ignore_index=True, sort=False)
         elif row['post_id'] in id_valid:
             valid = pd.concat([valid, new], axis=0, ignore_index=True, sort=False)
+        # if mode == 'clip':
+        #     word_feature = process(row['original_post'], model.float(), device)
+        # word_features[row['post_id']] = word_feature
 
-        word_inputs = process(row['original_post'], model.float(), device)
-        word_inputs_dic[row['post_id']] = word_inputs
-
-    np.save(big_processed_dir + '/word_clipinputs.npy', word_inputs_dic)
-    np.save(processed_dir + '/train.npy', train)
-    np.save(processed_dir + '/valid.npy', valid)
-    np.save(processed_dir + '/test.npy', test)
+    # np.save(big_processed_dir + '/word_clipinputs.npy', word_features)
+    all_data = pd.concat([test, valid, train], axis=0, ignore_index=True, sort=False)
+    train.to_csv(processed_dir + '/train_EANN_frozen.csv', index=False)
+    valid.to_csv(processed_dir + '/valid_EANN_frozen.csv', index=False)
+    test.to_csv(processed_dir + '/test_EANN_frozen.csv', index=False)
+    np.save(processed_dir + '/all_data_EANN_frozen.npy', all_data)
+    np.save(processed_dir + '/train_EANN_frozen.npy', train)
+    np.save(processed_dir + '/valid_EANN_frozen.npy', valid)
+    np.save(processed_dir + '/test_EANN_frozen.npy', test)
     print("train: ", len(train))
     print("valid: ", len(valid))
     print("test: ", len(test))
     print("total: ", len(train) + len(valid) + len(test))
+    
+
+def remove_punctuation(text):
+    pattern = r"\w{3}\s\w{3}\s\d{2}\s\d{2}:\d{2}:\d{2}\s\+\d{4}\s\d{4}"
+    text = re.sub(pattern, '', text)
+    pattern = r'[\n\\]|&quot'
+    
+    return re.sub(pattern, '', text)
 
 
-def get_word_inputs(text, model, device):
-    """ clip inputs, text -> [seq_length, context_length]
-    """
-    tokens = clip.tokenize(text, context_length=200)
-    return tokens.squeeze(0)
-
+def save_text_input(df):
+    n_words_dic = np.load(processed_dir + '/n_words.npy', allow_pickle=True).item()
+    n_token_dic = {}
+    text_input_dic = {}
+    for i, row in tqdm(df.iterrows(), total=len(df)):
+        post_id = row['post_id']
+        original_post = remove_punctuation(row['original_post'])
+        n_words = n_words_dic[post_id]
+        text_input = clip.tokenize(original_post, context_length=200).squeeze(0)
+        n_token = clip.tokenize(n_words, context_length=20)
+        n_token_dic[post_id] = n_token
+        text_input_dic[post_id] = text_input
+        
+    np.save(processed_dir + '/n_tokens.npy', n_token_dic)
+    np.save(processed_dir + '/word_clipinputs.npy', text_input_dic)
+    
 
 if __name__ == "__main__":
 
     image_list = read_image()
-    np.save(big_processed_dir + '/image_list.npy', image_list)
-    # image_list = np.load(big_processed_dir + '/image_list.npy', allow_pickle=True).item()
+    np.save(big_processed_dir + '/image_list_origin.npy', image_list)
+    image_list = np.load(big_processed_dir + '/image_list_origin.npy', allow_pickle=True).item()
 
     data_text_df = load_data()
-    # data_text_df = np.load(processed_dir + "/row_data_df.npy", allow_pickle=True)
-    # column = ['post_id', 'image_id', 'original_post', 'label']
-    # data_text_df = pd.DataFrame(data_text_df, columns=column)
+    data_text_df = np.load(processed_dir + "/data_text_df.npy", allow_pickle=True)
+    column = ['post_id', 'image_id', 'original_post', 'sentences', 'label']
+    data_text_df = pd.DataFrame(data_text_df, columns=column)
 
     data_df = paired(image_list, data_text_df)
 
-    # data_df = np.load(processed_dir + '/data_df.npy', allow_pickle=True)
-    # data_df = pd.DataFrame(data_df, columns=column)
-    split_process_data(data_df, get_word_inputs)
+    all_data = np.load(processed_dir + '/all_data_EANN.npy', allow_pickle=True)
+    column = ['original_post', 'clip_tokens', 'image', 'label', 'image_id', 'post_id']
+    all_data = pd.DataFrame(all_data, columns=column)
+    split_EANN_simple(all_data[['original_post', 'label', 'image_id', 'post_id']])
+    
+    df_train = np.load(processed_dir + "/train_EANN_frozen.npy", allow_pickle=True)
+    df_valid = np.load(processed_dir + "/valid_EANN_frozen.npy", allow_pickle=True)
+    df_test = np.load(processed_dir + "/test_EANN_frozen.npy", allow_pickle=True)
+    df_columns = ['original_post', 'label', 'image_id', 'post_id']
+    df_train = pd.DataFrame(df_train, columns=df_columns)
+    df_valid = pd.DataFrame(df_valid, columns=df_columns)
+    df_test = pd.DataFrame(df_test, columns=df_columns)
+    all_data_df = pd.concat([df_train, df_valid, df_test], axis=0, ignore_index=True, sort=False)
+    save_text_input(all_data_df)
+    
