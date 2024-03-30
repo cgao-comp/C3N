@@ -1,6 +1,6 @@
 # **C3N**
 
-The code related to the paper below: C3N: A Cross-modal Content Consistency Network for Enhancing Multimodal Fake News Detection
+The code related to the paper below: C3N: A Cross-modal Content Correlation Network for Enhancing Multimodal Fake News Detection
 
 ## **Data**
 
@@ -8,9 +8,9 @@ The two datasets used for this project are publicly accessible, and their links 
 
 [weibo](https://github.com/yaqingwang/EANN-KDD18)
 
-[twitter](http://www.multimediaeval.org/mediaeval2016/verifyingmultimediause/index.html)
+[twitter](https://github.com/MKLab-ITI/image-verification-corpus/tree/master/mediaeval2015)
 
-In this project, due to upload size limitations for some data, the files in `/data/weibo/processed/crops/` used can be downloaded via [Google Drive](https://drive.google.com/file/d/1HyXQhoeHKEe_MILui--mra9fKA449c2S/view?usp=sharing).
+In this project, due to upload size limitations for some data, the files in `/weibo/processed/crops/` used can be downloaded via [Google Drive](https://drive.google.com/file/d/1HyXQhoeHKEe_MILui--mra9fKA449c2S/view?usp=sharing).
 
 # Requirements
 

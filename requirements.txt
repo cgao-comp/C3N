@@ -1,0 +1,14 @@
+clip==1.0
+cn_clip==1.5.1
+importlib_metadata==6.0.0
+langdetect==1.0.9
+matplotlib==2.2.4
+numpy==1.21.6
+opencv_python==4.7.0.68
+pandas==1.1.5
+Pillow==9.5.0
+scikit_learn==1.0.2
+seaborn==0.12.2
+torchtext==0.15.2
+tqdm==4.64.1
+transformers==4.25.1
