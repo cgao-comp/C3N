@@ -10,7 +10,7 @@ The two datasets used for this project are publicly accessible, and their links 
 
 [twitter](https://github.com/MKLab-ITI/image-verification-corpus/tree/master/mediaeval2015)
 
-In this project, due to upload size limitations for some data, the files in `/weibo/processed/crops/` used can be downloaded via [Google Drive](https://drive.google.com/file/d/1HyXQhoeHKEe_MILui--mra9fKA449c2S/view?usp=sharing).
+In this project, due to upload size limitations for some data, the files in `/data/weibo/processed/crops/` used can be downloaded via [Google Drive](https://drive.google.com/file/d/1HyXQhoeHKEe_MILui--mra9fKA449c2S/view?usp=sharing).
 
 # Requirements
 
