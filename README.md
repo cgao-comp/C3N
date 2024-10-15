@@ -1,6 +1,6 @@
 # **C3N**
 
-The code related to the paper below: C3N: A Cross-modal Content Correlation Network for Enhancing Multimodal Fake News Detection
+The code related to the paper below: Improving Multimodal Fake News Detection by Leveraging Cross-modal Content Correlation
 
 ## **Data**
 
