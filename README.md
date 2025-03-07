@@ -1,6 +1,6 @@
 # **C3N**
 
-The code related to the paper below: Improving Multimodal Fake News Detection by Leveraging Cross-modal Content Correlation
+The code is related to the paper below: Improving Multimodal Fake News Detection by Leveraging Cross-modal Content Correlation.
 
 ## **Data**
 
