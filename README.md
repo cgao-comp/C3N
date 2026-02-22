@@ -1,6 +1,7 @@
 # **C3N**
 
-The code is related to the paper below: Improving Multimodal Fake News Detection by Leveraging Cross-modal Content Correlation.
+The code is related to the paper below: 
+Jiao Qiao, Xianghua Li, Chao Gao, Lianwei Wu, Junwei Feng, Zhen Wang, Improving multimodal fake news detection by leveraging cross-modal content correlation, Information Processing and Management, 2025, 62(5): 104120.
 
 ## **Data**
 
